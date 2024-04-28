@@ -26,14 +26,9 @@ android {
     namespace "com.example.health_mate"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
-//
-//    compileOptions {
-//        coreLibraryDesugaringEnabled true
-//        sourceCompatibility JavaVersion.VERSION_1_8
-//        targetCompatibility JavaVersion.VERSION_1_8
-//    }
+
     compileOptions {
-        // Suppress deprecation warnings in Java code
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
@@ -51,7 +46,7 @@ android {
         applicationId "com.example.health_mate"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 21
+        minSdkVersion 26
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

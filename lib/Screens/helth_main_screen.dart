@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:health_mate/Screens/chatbot.dart';
-import 'package:health_mate/Screens/happiness_juice_screen.dart';
 import 'package:health_mate/Screens/helth_notifier.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:health_mate/Screens/httpresponse.dart';
@@ -46,10 +45,42 @@ class _HealthMainScreenState extends State<HealthMainScreen> with SingleTickerPr
     //   }
     // });
     _tabController = TabController(
-      length: 4,
+      length: 3,
       vsync: this,
     );
     fetchDetail();
+  }
+  Future<void> submit() async {
+    try {
+      final url = 'http://13.48.136.54:8000/api/api-code/';
+      final response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Authorization': 'Bearer 60ea5369-5d67-4d9d-8de6-04bd9712d766',
+        },
+        body: jsonEncode('data'),
+      );
+
+      if (response.statusCode == 200) {
+        print('Request successful');
+        Fluttertoast.showToast(msg: 'successful');
+        var data = json.decode(response.body);
+        print('Response body: ${response.body}');
+        print(data);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HTTPResponse(data: data['api_code']),
+          ),
+        );
+      } else {
+        Fluttertoast.showToast(
+            msg: 'Request failed with status: ${response.statusCode}');
+      }
+    } catch (e) {
+      Fluttertoast.showToast(msg: "error : $e");
+      print(e);
+    }
   }
   @override
   Widget build(BuildContext context) {
@@ -73,6 +104,23 @@ class _HealthMainScreenState extends State<HealthMainScreen> with SingleTickerPr
               ),
               actions: [
                 // Expanded(child: SelectableText(token)),
+                IconButton(
+                    onPressed: () {
+                      // send notification from one device to another
+                      // _scheduleAlarm();
+                      // AndroidIntent intent = AndroidIntent(
+                      //   action: 'android.settings.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
+                      //   data: 'package:your.package.name',
+                      // );
+                      // intent.launch();
+                      // LocalNotifications.showSimpleNotification(
+                      //     title: "Schedule Notification",
+                      //     body: "This is a Schedule Notification",
+                      //     payload: "This is schedule data");
+                      submit();
+                      // LocalNotifications.cancel(1);
+                    },
+                    icon: Icon(Icons.send,color: Colors.white,)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: InkWell(
@@ -86,45 +134,34 @@ class _HealthMainScreenState extends State<HealthMainScreen> with SingleTickerPr
                                   )));
                     },
                     child: CircleAvatar(
-                      backgroundImage:   NetworkImage('${profilesnap['profile']}'),
+                      backgroundImage:
+                          NetworkImage('${profilesnap['profile']}'),
                     ),
                   ),
                 )
               ],
               bottom: TabBar(
                 controller: _tabController,
-                padding: EdgeInsets.zero,
                 labelColor: Colors.white,
                 dividerColor: Colors.white,
                 unselectedLabelColor: Colors.grey[400],
                 indicatorColor: Colors.deepPurple,
                 tabs: [
                   Tab(
-                    child: Center(
-                      child: Text(
-                        'Happiness Juice',style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
+                    child: Text(
+                      'Health Notifier',
+                      style: TextStyle(
+                        fontSize: 14,
                       ),
                     ),
                   ),
                   Tab(
-                    child: Center(
-                      child: Text(
-                        'Health Notifier',
-                        style: TextStyle(
-                          fontSize: 12,fontWeight: FontWeight.bold
-                        ),
-                      ),
+                    child: Text(
+                      'MedBot',
+                      style: TextStyle(fontSize: 15),
                     ),
                   ),
-                  Tab(
-                    child: Center(
-                      child: Text(
-                        'MedBot',
-                        style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  Tab(child: Center(child: Text('Emergency',style: TextStyle(fontSize: 11,fontWeight: FontWeight.bold),)),),
+                  Tab(child: Text('Emergency',style: TextStyle(fontSize: 15),),),
                   // Tab(text: 'Tab 3'),
                 ],
               ),
@@ -132,10 +169,10 @@ class _HealthMainScreenState extends State<HealthMainScreen> with SingleTickerPr
             body: TabBarView(
               controller: _tabController,
               children: [
-                HappinessJuiceScreen(),
                 HealthNotifierScreen(),
                 Chatbot(),
                 Emergency()
+                // BotWeb(),
               ],
             ),
           );

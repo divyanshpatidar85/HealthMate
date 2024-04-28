@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'dart:typed_data';
-// import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +10,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-import 'package:workmanager/workmanager.dart';
 import '../Notification Services/notifications.dart';
 import '../Widgets/dropdownforquntity.dart';
 import '../Widgets/dropdownforsyrup.dart';
@@ -118,32 +116,32 @@ class _AddPillsState extends State<AddPills> {
             child: Column(
                      mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Stack(
-                //   children: [
-                //     _image != null
-                //         ? CircleAvatar(
-                //       radius: 64,
-                //       backgroundImage: MemoryImage(_image!),
-                //       backgroundColor: Colors.white12,
-                //     )
-                //         : const CircleAvatar(
-                //       radius: 64,
-                //       backgroundImage:AssetImage('assets/capsul.png',),
-                //       backgroundColor: Colors.white12,
-                //     ),
-                //     Positioned(
-                //       bottom: -12,
-                //       left: 90,
-                //       child: IconButton(
-                //         onPressed: selectImage,
-                //         icon: const Icon(Icons.add_a_photo),
-                //       ),
-                //     ),
-                //   ],
-                // ),
-                // SizedBox(
-                //   height: 10,
-                // ),
+                Stack(
+                  children: [
+                    _image != null
+                        ? CircleAvatar(
+                      radius: 64,
+                      backgroundImage: MemoryImage(_image!),
+                      backgroundColor: Colors.white12,
+                    )
+                        : const CircleAvatar(
+                      radius: 64,
+                      backgroundImage:AssetImage('assets/capsul.png',),
+                      backgroundColor: Colors.white12,
+                    ),
+                    Positioned(
+                      bottom: -12,
+                      left: 90,
+                      child: IconButton(
+                        onPressed: selectImage,
+                        icon: const Icon(Icons.add_a_photo),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
                 TextField(
                   controller: pillnamecontroller,
                   decoration: InputDecoration(
@@ -328,7 +326,7 @@ class _AddPillsState extends State<AddPills> {
                   ],
                 ),
                 SizedBox(
-                  height: 40,
+                  height: 10,
                 ),
                 InkWell(
                   onTap: ()async{
@@ -337,6 +335,20 @@ class _AddPillsState extends State<AddPills> {
                     });
                     String ans ='';
                     var uid =Random().nextInt(10000000);
+                    if(isimage){
+                       ans = await FirestoreMethos().addpill(
+                        pillname: pillnamecontroller.text.trim(),
+                        pilltype: pilltype,
+                        pillamount: ispill ? selectedpill : selectedsyrup,
+                        startdate:startdatecontroller.text ,
+                        enddate: enddatecontroller.text,
+                        timming: selectedTimming,
+                        isimage:isimage,
+                       file:_image!,
+                        notificationuid: uid,
+                      );
+                    }
+                    else{
                        ans = await FirestoreMethos().addpill(
                         pillname: pillnamecontroller.text.trim(),
                         pilltype: pilltype,
@@ -347,7 +359,7 @@ class _AddPillsState extends State<AddPills> {
                         isimage:isimage,
                         notificationuid: uid,
                       );
-
+                    }
                     if(ans == 'success') {
                       LocalNotifications.showScheduleNotification(
                         id: uid,
@@ -357,36 +369,6 @@ class _AddPillsState extends State<AddPills> {
                         startdateTime: startschduletime!,
                         enddateTime: endschduletime!,
                       );
-                      // var minites = minutesUntil(startschduletime!);
-                      // print(minites);
-                      // Workmanager().registerOneOffTask(
-                      //     "notification", "simpleTask",
-                      //   inputData: <String, dynamic>{
-                      //     'id': uid,
-                      //     'title': "Time to take your medicine",
-                      //     'body': "pillname : ${pillnamecontroller.text}\nquantity : ${ispill ? selectedpill : selectedsyrup}",
-                      //     'payload': "This is schedule data",
-                      //     'startDateTime': startschduletime!.millisecondsSinceEpoch,
-                      //     'endDateTime': endschduletime!.millisecondsSinceEpoch,
-                      //   },
-                      //   initialDelay: Duration(minutes: minites)
-                      // );
-                      // await AndroidAlarmManager.periodic(
-                      //   const Duration(minutes: 1), // Repeat every day
-                      //   uid, // Unique ID for the alarm
-                      //   await LocalNotifications.schedulePeriodicNotifications(
-                      //     id: uid,
-                      //     title: "Time to take your medicine",
-                      //     body: "pillname : ${pillnamecontroller.text}\nquantity : ${ispill ? selectedpill : selectedsyrup}",
-                      //     payload: "This is schedule data",
-                      //     startdateTime: startschduletime!,
-                      //     enddateTime: endschduletime!,
-                      //   ), // Function to be called
-                      //   startAt: startschduletime!, // Start the alarm at 9 PM
-                      //   exact: true, // Execute exactly at the specified time
-                      //   wakeup: true, // Wake up the device to execute the task
-                      //   rescheduleOnReboot: true, // Reschedule the alarm after device reboot
-                      // );
                       setState(() {
                         issubmit = true;
                       });
@@ -415,12 +397,6 @@ class _AddPillsState extends State<AddPills> {
         ),
       ),
     );
-  }
-
-  int minutesUntil(DateTime targetDate) {
-    final now = DateTime.now();
-    final difference = targetDate.difference(now);
-    return difference.inMinutes;
   }
 
 }
